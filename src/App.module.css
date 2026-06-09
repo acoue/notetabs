@@ -1,0 +1,70 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #4F46E5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyInner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.emptyBtn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  color: #4F46E5;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.emptyBtn:hover {
+  background: #eef2ff;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
