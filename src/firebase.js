@@ -5,12 +5,12 @@ import { getFirestore } from 'firebase/firestore'
 // 👉 Remplace ces valeurs par celles de ta console Firebase
 // (Project settings > Your apps > Web app > firebaseConfig)
 const firebaseConfig = {
-  apiKey: "AIzaSyC1T-TUc5dbTTvKb-qztviRF0LNRGES48Y",
-  authDomain: "notetabs-941bf.firebaseapp.com",
-  projectId: "notetabs-941bf",
-  storageBucket: "notetabs-941bf.firebasestorage.app",
-  messagingSenderId: "785673262827",
-  appId: "1:785673262827:web:30891fdbb78f10cffc90ae"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 
 }
 
