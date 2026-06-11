@@ -5,7 +5,7 @@ import { getFirestore } from 'firebase/firestore'
 // 👉 Remplace ces valeurs par celles de ta console Firebase
 // (Project settings > Your apps > Web app > firebaseConfig)
 const firebaseConfig = {
-  apiKey: "AIzaSyC1T-TUc5dbTTvKb-qztviRF0LNRGES48Y",
+  apiKey: "XX",
   authDomain: "notetabs-941bf.firebaseapp.com",
   projectId: "notetabs-941bf",
   storageBucket: "notetabs-941bf.firebasestorage.app",
