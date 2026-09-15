@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "notetabs-941bf"
-  }
+    "default": "notetabs-941bf",
+    "notetabs": "notetabs-941bf"
+  },
+  "targets": {},
+  "etags": {}
 }
