@@ -30,8 +30,8 @@ export default function TabBar({ tabs, activeId, onSelect, onAdd, onClose }) {
         ))}
       </div>
 
-      <button className={styles.addBtn} onClick={onAdd} title="Nouvel onglet">
-        <span>+</span> Nouvel onglet
+      <button className={styles.addBtn} onClick={onAdd} title="Nouvelle note">
+        <span>+</span> Nouvelle note
       </button>
     </div>
   )

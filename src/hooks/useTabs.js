@@ -43,7 +43,7 @@ export function useTabs(uid) {
     const now = Date.now()
     const id = String(now)
     const tab = {
-      title: 'Nouvel onglet',
+      title: 'Nouvelle note',
       content: '',
       mode: 'markdown',
       createdAt: now,

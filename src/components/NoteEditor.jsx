@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import styles from './NoteEditor.module.css'
 
 export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) {
@@ -39,6 +40,73 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
     const url = window.prompt('URL de l’image :', 'https://')
     if (!url) return
     applyMarkdown('![image](', ')', url)
+  }
+
+  const insertTable = () => {
+    const textarea = editorRef.current
+    if (!textarea) return
+
+    const table = '| Tâche | Statut |\n| --- | --- |\n| Exemple | ✅ |'
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const nextValue = `${textarea.value.slice(0, start)}${table}${textarea.value.slice(end)}`
+
+    onUpdate(tab.id, { content: nextValue })
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const cursorPosition = start + table.length
+      textarea.setSelectionRange(cursorPosition, cursorPosition)
+    })
+  }
+
+  const insertChecklist = () => {
+    applyMarkdown('- [ ] ', '', 'à faire')
+  }
+
+  const insertTodo = () => {
+    const textarea = editorRef.current
+    if (!textarea) return
+
+    const todo = '- [ ] À faire\n- [x] Fait'
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const nextValue = `${textarea.value.slice(0, start)}${todo}${textarea.value.slice(end)}`
+
+    onUpdate(tab.id, { content: nextValue })
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const cursorPosition = start + todo.length
+      textarea.setSelectionRange(cursorPosition, cursorPosition)
+    })
+  }
+
+  const insertCodeBlock = () => {
+    applyMarkdown('```\n', '\n```', 'code')
+  }
+
+  const insertSeparator = () => {
+    const textarea = editorRef.current
+    if (!textarea) return
+
+    const separator = '\n---\n'
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const nextValue = `${textarea.value.slice(0, start)}${separator}${textarea.value.slice(end)}`
+
+    onUpdate(tab.id, { content: nextValue })
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const cursorPosition = start + separator.length
+      textarea.setSelectionRange(cursorPosition, cursorPosition)
+    })
+  }
+
+  const insertHeading = (level) => {
+    const prefix = `${'#'.repeat(level)} `
+    applyMarkdown(prefix, '', `Titre ${level}`)
   }
 
   const createdAt = tab.createdAt ?? Number(tab.id) ?? Date.now()
@@ -109,11 +177,17 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
       <div className={styles.formatToolbar}>
         <button className={styles.toolBtn} onClick={() => applyMarkdown('**', '**', 'gras')} title="Gras"><strong>B</strong></button>
         <button className={styles.toolBtn} onClick={() => applyMarkdown('*', '*', 'italique')} title="Italique"><em>I</em></button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('### ', '', 'Titre')} title="Titre">H1</button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('### ', '', 'Titre')} title="Titre H1">H1</button>
+        <button className={styles.toolBtn} onClick={() => insertHeading(2)} title="Titre H2">H2</button>
+        <button className={styles.toolBtn} onClick={() => insertHeading(3)} title="Titre H3">H3</button>
         <button className={styles.toolBtn} onClick={() => applyMarkdown('- ', '', 'liste')} title="Liste">• List</button>
+        <button className={styles.toolBtn} onClick={insertChecklist} title="Checklist">☑</button>
+        <button className={styles.toolBtn} onClick={insertTodo} title="Todo">Todo</button>
         <button className={styles.toolBtn} onClick={() => applyMarkdown('> ', '', 'citation')} title="Citation">❝</button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('`', '`', 'code')} title="Code">&lt;/&gt;</button>
+        <button className={styles.toolBtn} onClick={insertCodeBlock} title="Bloc code">&lt;/&gt;</button>
         <button className={styles.toolBtn} onClick={() => applyMarkdown('[texte](', ')', 'https://example.com')} title="Lien">Link</button>
+        <button className={styles.toolBtn} onClick={insertTable} title="Tableau">Table</button>
+        <button className={styles.toolBtn} onClick={insertSeparator} title="Séparateur">—</button>
         <button className={styles.toolBtn} onClick={insertImageFromUrl} title="Image depuis URL">Image</button>
       </div>
 
@@ -143,7 +217,7 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
               <div className={styles.paneLabel}>Prévisualisation</div>
               <div className={styles.mdPreview}>
                 {tab.content
-                  ? <ReactMarkdown>{tab.content}</ReactMarkdown>
+                  ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{tab.content}</ReactMarkdown>
                   : <span className={styles.emptyHint}>La prévisualisation apparaît ici…</span>
                 }
               </div>
@@ -163,7 +237,7 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
         <h1 className={styles.printTitle}>{tab.title || 'Sans titre'}</h1>
         <div className={styles.printMeta}>Créé le {createdDate}</div>
         {tab.mode === 'markdown'
-          ? <ReactMarkdown>{tab.content}</ReactMarkdown>
+          ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{tab.content}</ReactMarkdown>
           : <pre className={styles.printText}>{tab.content}</pre>
         }
       </div>
