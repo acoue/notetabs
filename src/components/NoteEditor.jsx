@@ -1,11 +1,89 @@
 import { useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { marked } from 'marked'
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
+import { Table } from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableHeader from '@tiptap/extension-table-header'
+import TableCell from '@tiptap/extension-table-cell'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 import styles from './NoteEditor.module.css'
 
-export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) {
+function RichNoteEditor({ tab, onUpdate }) {
+  const initialContent = tab.mode === 'rich' ? tab.content : marked.parse(tab.content || '')
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      Link.configure({ openOnClick: false }),
+      Image,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+    ],
+    content: initialContent,
+    onUpdate: ({ editor: currentEditor }) => {
+      onUpdate(tab.id, { content: currentEditor.getHTML(), mode: 'rich' })
+    },
+  }, [tab.id])
+
+  if (!editor) return null
+
+  const addLink = () => {
+    const url = window.prompt('URL du lien :', 'https://')
+    if (url) editor.chain().focus().setLink({ href: url }).run()
+  }
+
+  const addImage = () => {
+    const url = window.prompt('URL de l’image :', 'https://')
+    if (url) editor.chain().focus().setImage({ src: url, alt: 'Image' }).run()
+  }
+
+  const button = (label, title, action, active = false) => (
+    <button
+      type="button"
+      className={`${styles.toolBtn} ${active ? styles.toolActive : ''}`}
+      onClick={action}
+      title={title}
+    >
+      {label}
+    </button>
+  )
+
+  return (
+    <>
+      <div className={styles.formatToolbar}>
+        {button(<strong>B</strong>, 'Gras', () => editor.chain().focus().toggleBold().run(), editor.isActive('bold'))}
+        {button(<em>I</em>, 'Italique', () => editor.chain().focus().toggleItalic().run(), editor.isActive('italic'))}
+        {button('H1', 'Titre 1', () => editor.chain().focus().toggleHeading({ level: 1 }).run(), editor.isActive('heading', { level: 1 }))}
+        {button('H2', 'Titre 2', () => editor.chain().focus().toggleHeading({ level: 2 }).run(), editor.isActive('heading', { level: 2 }))}
+        {button('H3', 'Titre 3', () => editor.chain().focus().toggleHeading({ level: 3 }).run(), editor.isActive('heading', { level: 3 }))}
+        {button('• List', 'Liste', () => editor.chain().focus().toggleBulletList().run(), editor.isActive('bulletList'))}
+        {button('☑', 'Checklist', () => editor.chain().focus().toggleTaskList().run(), editor.isActive('taskList'))}
+        {button('Todo', 'Todo', () => editor.chain().focus().toggleTaskList().run(), editor.isActive('taskList'))}
+        {button('❝', 'Citation', () => editor.chain().focus().toggleBlockquote().run(), editor.isActive('blockquote'))}
+        {button('</>', 'Bloc code', () => editor.chain().focus().toggleCodeBlock().run(), editor.isActive('codeBlock'))}
+        {button('Link', 'Lien', addLink, editor.isActive('link'))}
+        {button('Table', 'Tableau', () => editor.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run())}
+        {button('—', 'Séparateur', () => editor.chain().focus().setHorizontalRule().run())}
+        {button('Image', 'Image depuis URL', addImage)}
+      </div>
+      <div className={styles.richEditor}>
+        <EditorContent editor={editor} />
+      </div>
+    </>
+  )
+}
+
+export default function NoteEditor({ tab, onUpdate, onDelete, onLogout }) {
   const printRef = useRef()
-  const editorRef = useRef(null)
 
   const handlePrint = () => {
     window.print()
@@ -17,99 +95,7 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
     }
   }
 
-  const applyMarkdown = (prefix, suffix = '', placeholder = 'texte') => {
-    const textarea = editorRef.current
-    if (!textarea) return
-
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selected = textarea.value.slice(start, end) || placeholder
-    const nextValue = `${textarea.value.slice(0, start)}${prefix}${selected}${suffix}${textarea.value.slice(end)}`
-
-    onUpdate(tab.id, { content: nextValue })
-
-    requestAnimationFrame(() => {
-      textarea.focus()
-      const cursorStart = start + prefix.length
-      const cursorEnd = cursorStart + selected.length
-      textarea.setSelectionRange(cursorStart, cursorEnd)
-    })
-  }
-
-  const insertImageFromUrl = () => {
-    const url = window.prompt('URL de l’image :', 'https://')
-    if (!url) return
-    applyMarkdown('![image](', ')', url)
-  }
-
-  const insertTable = () => {
-    const textarea = editorRef.current
-    if (!textarea) return
-
-    const table = '| Tâche | Statut |\n| --- | --- |\n| Exemple | ✅ |'
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const nextValue = `${textarea.value.slice(0, start)}${table}${textarea.value.slice(end)}`
-
-    onUpdate(tab.id, { content: nextValue })
-
-    requestAnimationFrame(() => {
-      textarea.focus()
-      const cursorPosition = start + table.length
-      textarea.setSelectionRange(cursorPosition, cursorPosition)
-    })
-  }
-
-  const insertChecklist = () => {
-    applyMarkdown('- [ ] ', '', 'à faire')
-  }
-
-  const insertTodo = () => {
-    const textarea = editorRef.current
-    if (!textarea) return
-
-    const todo = '- [ ] À faire\n- [x] Fait'
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const nextValue = `${textarea.value.slice(0, start)}${todo}${textarea.value.slice(end)}`
-
-    onUpdate(tab.id, { content: nextValue })
-
-    requestAnimationFrame(() => {
-      textarea.focus()
-      const cursorPosition = start + todo.length
-      textarea.setSelectionRange(cursorPosition, cursorPosition)
-    })
-  }
-
-  const insertCodeBlock = () => {
-    applyMarkdown('```\n', '\n```', 'code')
-  }
-
-  const insertSeparator = () => {
-    const textarea = editorRef.current
-    if (!textarea) return
-
-    const separator = '\n---\n'
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const nextValue = `${textarea.value.slice(0, start)}${separator}${textarea.value.slice(end)}`
-
-    onUpdate(tab.id, { content: nextValue })
-
-    requestAnimationFrame(() => {
-      textarea.focus()
-      const cursorPosition = start + separator.length
-      textarea.setSelectionRange(cursorPosition, cursorPosition)
-    })
-  }
-
-  const insertHeading = (level) => {
-    const prefix = `${'#'.repeat(level)} `
-    applyMarkdown(prefix, '', `Titre ${level}`)
-  }
-
-  const createdAt = tab.createdAt ?? Number(tab.id) ?? Date.now()
+  const createdAt = tab.createdAt ?? (Number(tab.id) || 0)
   const updatedAt = tab.updatedAt ?? createdAt
 
   const formatDate = (value) => new Date(value).toLocaleString('fr-FR', {
@@ -137,16 +123,11 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
 
         <div className={styles.modeToggle}>
           <button
-            className={`${styles.modeBtn} ${tab.mode === 'text' ? styles.modeActive : ''}`}
-            onClick={() => onUpdate(tab.id, { mode: 'text' })}
+            className={`${styles.modeBtn} ${styles.modeActive}`}
+            disabled
+            title="Éditeur de texte riche"
           >
-            Texte
-          </button>
-          <button
-            className={`${styles.modeBtn} ${tab.mode === 'markdown' ? styles.modeActive : ''}`}
-            onClick={() => onUpdate(tab.id, { mode: 'markdown' })}
-          >
-            Markdown
+            Texte riche
           </button>
         </div>
 
@@ -174,71 +155,24 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
         <span>Dernière modif. {updatedDate}</span>
       </div>
 
-      <div className={styles.formatToolbar}>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('**', '**', 'gras')} title="Gras"><strong>B</strong></button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('*', '*', 'italique')} title="Italique"><em>I</em></button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('### ', '', 'Titre')} title="Titre H1">H1</button>
-        <button className={styles.toolBtn} onClick={() => insertHeading(2)} title="Titre H2">H2</button>
-        <button className={styles.toolBtn} onClick={() => insertHeading(3)} title="Titre H3">H3</button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('- ', '', 'liste')} title="Liste">• List</button>
-        <button className={styles.toolBtn} onClick={insertChecklist} title="Checklist">☑</button>
-        <button className={styles.toolBtn} onClick={insertTodo} title="Todo">Todo</button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('> ', '', 'citation')} title="Citation">❝</button>
-        <button className={styles.toolBtn} onClick={insertCodeBlock} title="Bloc code">&lt;/&gt;</button>
-        <button className={styles.toolBtn} onClick={() => applyMarkdown('[texte](', ')', 'https://example.com')} title="Lien">Link</button>
-        <button className={styles.toolBtn} onClick={insertTable} title="Tableau">Table</button>
-        <button className={styles.toolBtn} onClick={insertSeparator} title="Séparateur">—</button>
-        <button className={styles.toolBtn} onClick={insertImageFromUrl} title="Image depuis URL">Image</button>
-      </div>
-
       {/* Zone d'édition */}
       <div className={styles.editorArea} ref={printRef}>
-        {tab.mode === 'text' ? (
-          <textarea
-            ref={editorRef}
-            className={styles.plainTextarea}
-            value={tab.content}
-            placeholder="Commencez à écrire…"
-            onChange={(e) => onUpdate(tab.id, { content: e.target.value })}
-          />
-        ) : (
-          <div className={styles.splitView}>
-            <div className={styles.editorPane}>
-              <div className={styles.paneLabel}>Édition</div>
-              <textarea
-                ref={editorRef}
-                className={styles.mdTextarea}
-                value={tab.content}
-                placeholder="# Titre&#10;&#10;Écrivez en Markdown…"
-                onChange={(e) => onUpdate(tab.id, { content: e.target.value })}
-              />
-            </div>
-            <div className={styles.previewPane}>
-              <div className={styles.paneLabel}>Prévisualisation</div>
-              <div className={styles.mdPreview}>
-                {tab.content
-                  ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{tab.content}</ReactMarkdown>
-                  : <span className={styles.emptyHint}>La prévisualisation apparaît ici…</span>
-                }
-              </div>
-            </div>
-          </div>
-        )}
+        <RichNoteEditor key={tab.id} tab={tab} onUpdate={onUpdate} />
       </div>
 
       {/* Status bar */}
       <div className={styles.statusBar}>
         <span>{tab.content.length} caractère{tab.content.length !== 1 ? 's' : ''}</span>
-        <span>Mode : {tab.mode === 'markdown' ? 'Markdown' : 'Texte'} • Sauvegarde auto</span>
+        <span>Mode : Texte riche • Sauvegarde auto</span>
       </div>
 
       {/* Zone impression cachée hors écran */}
       <div className={styles.printArea}>
         <h1 className={styles.printTitle}>{tab.title || 'Sans titre'}</h1>
         <div className={styles.printMeta}>Créé le {createdDate}</div>
-        {tab.mode === 'markdown'
-          ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{tab.content}</ReactMarkdown>
-          : <pre className={styles.printText}>{tab.content}</pre>
+        {tab.mode === 'rich'
+          ? <div dangerouslySetInnerHTML={{ __html: tab.content }} />
+          : <ReactMarkdown remarkPlugins={[remarkGfm]}>{tab.content}</ReactMarkdown>
         }
       </div>
     </div>
