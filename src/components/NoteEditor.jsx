@@ -4,6 +4,7 @@ import styles from './NoteEditor.module.css'
 
 export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) {
   const printRef = useRef()
+  const editorRef = useRef(null)
 
   const handlePrint = () => {
     window.print()
@@ -15,10 +16,44 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
     }
   }
 
-  const createdDate = new Date(parseInt(tab.id)).toLocaleDateString('fr-FR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+  const applyMarkdown = (prefix, suffix = '', placeholder = 'texte') => {
+    const textarea = editorRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selected = textarea.value.slice(start, end) || placeholder
+    const nextValue = `${textarea.value.slice(0, start)}${prefix}${selected}${suffix}${textarea.value.slice(end)}`
+
+    onUpdate(tab.id, { content: nextValue })
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      const cursorStart = start + prefix.length
+      const cursorEnd = cursorStart + selected.length
+      textarea.setSelectionRange(cursorStart, cursorEnd)
+    })
+  }
+
+  const insertImageFromUrl = () => {
+    const url = window.prompt('URL de l’image :', 'https://')
+    if (!url) return
+    applyMarkdown('![image](', ')', url)
+  }
+
+  const createdAt = tab.createdAt ?? Number(tab.id) ?? Date.now()
+  const updatedAt = tab.updatedAt ?? createdAt
+
+  const formatDate = (value) => new Date(value).toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
+
+  const createdDate = formatDate(createdAt)
+  const updatedDate = formatDate(updatedAt)
 
   return (
     <div className={styles.wrapper}>
@@ -66,10 +101,27 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
 </button>
       </div>
 
+      <div className={styles.metaRow}>
+        <span>Créé le {createdDate}</span>
+        <span>Dernière modif. {updatedDate}</span>
+      </div>
+
+      <div className={styles.formatToolbar}>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('**', '**', 'gras')} title="Gras"><strong>B</strong></button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('*', '*', 'italique')} title="Italique"><em>I</em></button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('### ', '', 'Titre')} title="Titre">H1</button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('- ', '', 'liste')} title="Liste">• List</button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('> ', '', 'citation')} title="Citation">❝</button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('`', '`', 'code')} title="Code">&lt;/&gt;</button>
+        <button className={styles.toolBtn} onClick={() => applyMarkdown('[texte](', ')', 'https://example.com')} title="Lien">Link</button>
+        <button className={styles.toolBtn} onClick={insertImageFromUrl} title="Image depuis URL">Image</button>
+      </div>
+
       {/* Zone d'édition */}
       <div className={styles.editorArea} ref={printRef}>
         {tab.mode === 'text' ? (
           <textarea
+            ref={editorRef}
             className={styles.plainTextarea}
             value={tab.content}
             placeholder="Commencez à écrire…"
@@ -80,6 +132,7 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
             <div className={styles.editorPane}>
               <div className={styles.paneLabel}>Édition</div>
               <textarea
+                ref={editorRef}
                 className={styles.mdTextarea}
                 value={tab.content}
                 placeholder="# Titre&#10;&#10;Écrivez en Markdown…"
@@ -101,7 +154,6 @@ export default function NoteEditor({ tab, onUpdate, onDelete, user, onLogout }) 
 
       {/* Status bar */}
       <div className={styles.statusBar}>
-        <span>Créé le {createdDate}</span>
         <span>{tab.content.length} caractère{tab.content.length !== 1 ? 's' : ''}</span>
         <span>Mode : {tab.mode === 'markdown' ? 'Markdown' : 'Texte'} • Sauvegarde auto</span>
       </div>

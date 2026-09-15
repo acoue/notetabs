@@ -2,7 +2,9 @@
   height: 100vh;
   display: flex;
   overflow: hidden;
-  background: #fff;
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.10), transparent 24%),
+    #f5f5f7;
 }
 
 .content {
@@ -11,6 +13,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: rgba(255, 255, 255, 0.36);
 }
 
 .loading {

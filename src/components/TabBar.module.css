@@ -1,37 +1,44 @@
 .bar {
-  width: 240px;
-  min-width: 240px;
+  width: 248px;
+  min-width: 248px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 12px;
-  padding: 16px 12px;
-  background: #fafaf9;
-  border-right: 1px solid #e5e7eb;
+  padding: 18px 12px 12px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(17, 24, 39, 0.06);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.55);
   overflow: hidden;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   flex-shrink: 0;
-  padding: 4px 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px solid rgba(79, 70, 229, 0.08);
 }
 
 .appName {
   font-size: 14px;
-  font-weight: 600;
-  color: #111;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #111827;
 }
 
 .tabs {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-right: 2px;
   scrollbar-width: none;
 }
 
@@ -41,29 +48,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 7px;
+  padding: 10px 12px;
+  border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   font-size: 13px;
-  color: #6b7280;
+  color: #4b5563;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.1s;
+  transition: all 0.15s ease;
 }
 
 .tab:hover {
-  background: #f0f0ef;
-  color: #374151;
+  background: rgba(17, 24, 39, 0.03);
+  color: #111827;
 }
 
 .tab.active {
-  background: #fff;
-  border-color: #e5e7eb;
-  color: #111;
-  font-weight: 500;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
+  border-color: rgba(99, 102, 241, 0.18);
+  color: #111827;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.08);
+  font-weight: 600;
 }
 
 .tabTitle {
@@ -78,33 +86,39 @@
   line-height: 1;
   color: #9ca3af;
   flex-shrink: 0;
-  border-radius: 4px;
-  padding: 0 2px;
-  transition: color 0.1s, background 0.1s;
+  border-radius: 6px;
+  padding: 1px 4px;
+  transition: all 0.15s ease;
 }
 
 .closeBtn:hover {
   color: #ef4444;
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .addBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 10px;
-  border-radius: 7px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.18);
   font-size: 13px;
-  color: #6b7280;
+  font-weight: 600;
+  color: #fff;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.1s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .addBtn:hover {
-  background: #f0f0ef;
-  color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 22px rgba(79, 70, 229, 0.22);
+}
+
+.addBtn:active {
+  transform: translateY(0);
 }

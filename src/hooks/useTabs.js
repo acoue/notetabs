@@ -40,12 +40,14 @@ export function useTabs(uid) {
 
   // Créer un onglet
   const addTab = useCallback(async () => {
-    const id = String(Date.now())
+    const now = Date.now()
+    const id = String(now)
     const tab = {
       title: 'Nouvel onglet',
       content: '',
       mode: 'markdown',
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     }
     await setDoc(doc(db, 'users', uid, 'tabs', id), tab)
     setActiveId(id)
@@ -63,12 +65,14 @@ export function useTabs(uid) {
   // Mise à jour immédiate locale + sauvegarde Firestore avec debounce
   const updateTab = useCallback(
     (id, changes) => {
+      const payload = { ...changes, updatedAt: Date.now() }
+
       setTabs((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...changes } : t))
+        prev.map((t) => (t.id === id ? { ...t, ...payload } : t))
       )
       clearTimeout(saveTimers.current[id])
       saveTimers.current[id] = setTimeout(() => {
-        setDoc(doc(db, 'users', uid, 'tabs', id), changes, { merge: true })
+        setDoc(doc(db, 'users', uid, 'tabs', id), payload, { merge: true })
       }, DEBOUNCE_MS)
     },
     [uid]

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build-firebase":"npm ci && npm run build",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
