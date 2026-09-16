@@ -10,6 +10,13 @@
   border-right: 1px solid rgba(148, 163, 184, 0.12);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
   overflow: hidden;
+  transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease;
+}
+
+.collapsed {
+  width: 72px;
+  min-width: 72px;
+  padding: 18px 10px 16px;
 }
 
 .logo {
@@ -21,6 +28,14 @@
   border-radius: 14px;
   background: rgba(124, 58, 237, 0.08);
   border: 1px solid rgba(167, 139, 250, 0.18);
+  position: relative;
+  min-height: 44px;
+  transition: padding 0.22s ease;
+}
+
+.collapsed .logo {
+  justify-content: center;
+  padding: 10px 8px;
 }
 
 .appName {
@@ -28,6 +43,41 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.16s ease, width 0.22s ease;
+}
+
+.collapsed .appName {
+  width: 0;
+  opacity: 0;
+}
+
+.toggleBtn {
+  position: absolute;
+  right: 8px;
+  top: 10px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.7);
+  color: #cbd5e1;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toggleBtn:hover {
+  background: rgba(124, 58, 237, 0.35);
+  color: #fff;
+}
+
+.collapsed .toggleBtn {
+  right: 2px;
+  top: 2px;
 }
 
 .tabs {
@@ -60,6 +110,11 @@
   transition: all 0.16s ease;
 }
 
+.collapsed .tab {
+  justify-content: center;
+  padding: 11px 6px;
+}
+
 .tab:hover {
   background: rgba(148, 163, 184, 0.06);
   color: #f8fafc;
@@ -78,6 +133,21 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+.collapsed .tabTitle {
+  display: block;
+  flex: 0 0 auto;
+  width: 28px;
+  overflow: visible;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.collapsed .closeBtn {
+  display: none;
 }
 
 .closeBtn {
@@ -113,6 +183,21 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.addLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.16s ease, width 0.22s ease;
+}
+
+.collapsed .addBtn {
+  padding: 11px 0;
+}
+
+.collapsed .addLabel {
+  width: 0;
+  opacity: 0;
+}
+
 .addBtn:hover {
   transform: translateY(-1px);
   box-shadow: 0 18px 28px rgba(124, 58, 237, 0.25);
@@ -120,4 +205,31 @@
 
 .addBtn:active {
   transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+  .bar {
+    width: 220px;
+    min-width: 220px;
+    padding: 12px 8px;
+    gap: 10px;
+  }
+
+  .collapsed {
+    width: 58px;
+    min-width: 58px;
+    padding: 12px 7px;
+  }
+
+  .logo {
+    padding: 8px 9px;
+  }
+
+  .collapsed .logo {
+    padding: 8px 5px;
+  }
+
+  .tab {
+    padding: 10px 9px;
+  }
 }

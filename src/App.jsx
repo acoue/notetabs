@@ -9,6 +9,7 @@ import styles from './App.module.css'
 
 function AppShell({ user }) {
   const { tabs, activeTab, activeId, setActiveId, addTab, removeTab, updateTab, loading } = useTabs(user.uid)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth <= 720)
 
   const handleLogout = () => signOut(auth)
 
@@ -29,6 +30,8 @@ function AppShell({ user }) {
       <TabBar
         tabs={tabs}
         activeId={activeId}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
         onSelect={setActiveId}
         onAdd={addTab}
         onClose={handleClose}
@@ -51,9 +54,9 @@ function AppShell({ user }) {
                 <rect width="36" height="36" rx="10" fill="#EEF2FF"/>
                 <path d="M10 26V12h4l4 8 4-8h4v14h-3V17l-4 7h-2l-4-7v9h-3z" fill="#4F46E5"/>
               </svg>
-              <p className={styles.emptyText}>Aucun onglet ouvert</p>
+              <p className={styles.emptyText}>Aucune note ouverte</p>
               <button className={styles.emptyBtn} onClick={addTab}>
-                + Créer un premier onglet
+                + Créer une première note
               </button>
             </div>
           </div>

@@ -471,6 +471,82 @@
   color: #4b5563;
 }
 
+@media (max-width: 900px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .titleInput {
+    max-width: none;
+    min-width: 140px;
+  }
+
+  .userBtn {
+    margin-left: 0;
+  }
+
+  .richEditor {
+    padding: 24px 20px 64px;
+  }
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .titleInput {
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .modeToggle { order: 2; }
+  .actions { order: 3; }
+  .userBtn { order: 4; margin-left: auto; }
+
+  .metaRow {
+    padding: 9px 12px;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .metaRow span {
+    padding: 6px 8px;
+  }
+
+  .formatToolbar {
+    gap: 5px;
+    padding: 8px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .formatToolbar::-webkit-scrollbar { display: none; }
+
+  .toolBtn {
+    min-width: 36px;
+    height: 30px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .richEditor {
+    padding: 18px 12px 48px;
+  }
+
+  .richEditor :global(.ProseMirror) {
+    font-size: 15px;
+    padding: 0 4px;
+  }
+
+  .statusBar {
+    padding: 7px 10px;
+    gap: 4px 12px;
+  }
+}
+
 .printArea {
   display: none;
 }
